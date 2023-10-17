@@ -1,0 +1,66 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "IMAGE_NAME",
+      "image": "DOCKER_IMAGE_REGISTRY_PATH",
+      "cpu": 0,
+      "links": [],
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "entryPoint": [],
+      "command": [],
+      "environment": [
+        {
+          "name": "KEY",
+          "value": "VALUE"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "logConfiguration": {
+        "logDriver": "awsfirelens",
+        "options": {
+          "Name": "datadog",
+          "apikey": "FIRELENS_API_KEY",
+          "Host": "http-intake.logs.datadoghq.com",
+          "dd_service": "DATADOG_SERVICE_NAME",
+          "dd_source": "log",
+          "dd_message_key": "message",
+          "TLS": "on",
+          "provider": "ecs"
+        }
+      }
+    },
+    {
+      "essential": true,
+      "image": "amazon/aws-for-fluent-bit:stable",
+      "name": "log_router",
+      "firelensConfiguration": {
+        "type": "fluentbit",
+        "options": {
+          "enable-ecs-log-metadata": "true",
+          "config-file-type": "file",
+          "config-file-value": "/fluent-bit/configs/parse-json.conf"
+        }
+      }
+    }
+  ],
+  "family": "TASK_DEFINITION_NAME",
+  "executionRoleArn": "ECS_TASK_EXECUTION_ROLE",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}
+
+

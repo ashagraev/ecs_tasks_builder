@@ -1,0 +1,9 @@
+rollout-service-fargate:
+  script:
+    - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+    - docker build -t $SERVICE $SERVICE_PATH/
+    - docker tag $SERVICE:latest $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$SERVICE:latest
+    - docker push $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$SERVICE:latest
+    - aws ecs register-task-definition --cli-input-json file://$SERVICE_PATH/ecs_task_definition.json --region $REGION
+    - aws ecs update-service --cluster $CLUSTER --service $SERVICE --task-definition $TASK_DEFINITION --region $REGION
+    - aws ecs wait services-stable --cluster $CLUSTER --services $SERVICE --region eu-central-1
